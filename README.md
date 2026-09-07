@@ -1,281 +1,230 @@
 # Vendor Performance & Profitability Analysis
 
-An end-to-end data analytics project focused on evaluating vendor sales performance, profitability, inventory efficiency, and vendor concentration using Python, Pandas, SQLite, MySQL, SQL, and Power BI.
+An end-to-end data analytics project focused on evaluating vendor performance, profitability, purchasing activity, inventory efficiency, and vendor concentration using **Python, Pandas, SQL, SQLite, MySQL, and Power BI**.
 
-The project started from raw CSV datasets and progressed through data preparation, exploratory data analysis, database migration, analytical validation, and interactive dashboard development.
+The project analyzes more than **15 million supply-chain records** to identify sales patterns, profitability differences, purchasing efficiency, inventory movement, and vendors that require further attention.
 
 ---
 
-## Project Overview
+## 1. Project Objective
 
-The objective of this project is to analyze vendor performance and identify key factors affecting sales, profitability, purchasing efficiency, and inventory turnover.
+The main objective of this project is to understand vendor performance from both a **commercial** and **operational** perspective.
 
 The analysis focuses on questions such as:
 
-* Which vendors generate the highest sales?
-* Which vendors generate the highest gross profit?
-* How profitable are vendor-brand combinations?
-* How efficiently is inventory being turned over?
-* How does sales performance compare with purchasing activity?
+* Which vendors generate the highest sales and gross profit?
+* Which vendor-brand combinations generate strong or negative profitability?
+* How efficiently is inventory moving?
+* How does purchasing activity compare with sales?
 * How concentrated are sales among the largest vendors?
-* Which vendor-level records combine high sales with strong operational efficiency?
+* Which vendors combine strong sales performance with operational efficiency?
+* Are operational efficiency metrics strongly associated with profitability?
+
+The analysis is descriptive and focuses on identifying patterns and potential areas for further investigation. It does **not** attempt to establish causal relationships.
 
 ---
 
-## Analytical Workflow
-
-```text
-Raw CSV Files
-     │
-     ▼
-Python + Pandas
-     │
-     ▼
-SQLite Database
-     │
-     ├── Data validation
-     └── Exploratory Data Analysis
-     │
-     ▼
-MySQL Database
-     │
-     ├── Analytical preparation
-     └── SQL validation
-     │
-     ▼
-Power BI
-     │
-     └── Vendor Performance Dashboard
-```
-
----
-
-## Dataset
+## 2. Dataset Overview
 
 The project uses six source datasets:
 
-* `begin_inventory`
-* `end_inventory`
-* `purchases`
-* `purchase_prices`
-* `sales`
-* `vendor_invoice`
+| Dataset           |    Records |
+| ----------------- | ---------: |
+| `begin_inventory` |    206,529 |
+| `end_inventory`   |    224,489 |
+| `purchases`       |  2,372,474 |
+| `purchase_prices` |     12,261 |
+| `sales`           | 12,825,363 |
+| `vendor_invoice`  |      5,543 |
+| **Total**         | **~15.4M** |
 
-The combined source data contains approximately **15.4 million records**.
+The largest dataset is the sales table, containing more than **12.8 million records**.
 
-### Dataset Sizes
-
-| Dataset         |    Records |
-| --------------- | ---------: |
-| begin_inventory |    206,529 |
-| end_inventory   |    224,489 |
-| purchases       |  2,372,474 |
-| purchase_prices |     12,261 |
-| sales           | 12,825,363 |
-| vendor_invoice  |      5,543 |
+The raw datasets were processed using Pandas in chunks to handle the large data volume efficiently.
 
 ---
 
-## Tools & Technologies
+## 3. Technology Stack
 
-### Programming & Data Processing
-
-* Python
-* Pandas
-* Jupyter Notebook
-
-### Databases
-
-* SQLite
-* MySQL
-
-### SQL & Database Access
-
-* SQL
-* SQLAlchemy
-
-### Business Intelligence
-
-* Power BI
-* Power Query
-
-### Analysis
-
-* Exploratory Data Analysis (EDA)
-* Vendor Performance Analysis
-* Profitability Analysis
-* Vendor Concentration Analysis
-* Operational Efficiency Analysis
+* **Python**
+* **Pandas**
+* **SQLite**
+* **MySQL**
+* **SQL**
+* **Power BI**
+* **DAX**
+* **Power Query**
+* **Git/GitHub**
 
 ---
 
-## Data Preparation
+## 4. Data Analytics Workflow
 
-The raw CSV files were initially processed using Python and Pandas.
-
-Because several source tables contain millions of records, the data was processed in chunks before being loaded into the SQLite database.
-
-SQLite was used as the initial analytical and validation database.
-
-The resulting SQLite database was:
+The project follows an end-to-end analytical workflow:
 
 ```text
-inventory.db
+Raw CSV Files
+      ↓
+Python / Pandas
+      ↓
+Data Preparation & Chunk Processing
+      ↓
+SQLite
+      ↓
+Data Validation & Exploratory Data Analysis
+      ↓
+MySQL
+      ↓
+Analytical SQL Queries
+      ↓
+Power BI
+      ↓
+Interactive Dashboard & Business Insights
 ```
+
+SQLite was initially used for data validation and exploratory analysis.
+
+The complete database was subsequently migrated to MySQL, which became the primary database for analytical SQL work, while SQLite was retained as a validation reference.
+
+The migration of the database took approximately **7.10 minutes**.
 
 ---
 
-## SQLite to MySQL Migration
+# 5. Data Validation
 
-After the initial analysis and validation, the complete SQLite database was migrated to MySQL.
+Before performing the main analysis, the source data was validated against baseline totals.
 
-The analytical MySQL database is:
+### Sales baseline
 
-```text
-vendor_analysis
-```
+* Sales records: **12,825,363**
+* Total sales quantity: **32,917,876**
+* Total sales dollars: **$452,062,952.07**
 
-The migration preserved the six source tables:
-
-```text
-begin_inventory
-end_inventory
-purchase_prices
-purchases
-sales
-vendor_invoice
-```
-
-The migration was completed successfully and took approximately **7.10 minutes**.
-
-SQLite was retained as a validation reference while MySQL became the primary analytical database.
-
----
-
-## Data Validation
-
-Several validation steps were performed during the analytical preparation phase.
-
-### Sales Validation
-
-The source sales table contains:
-
-* **12,825,363** sales records
-* **32,917,876** total sales quantity
-* **$452,062,952.07** total sales dollars
-
-A decimal precision reconciliation was also performed during the MySQL analytical preparation.
-
-Using:
+An additional calculation using:
 
 ```sql
 CAST(SalesDollars AS DECIMAL(20,6))
 ```
 
-produced a reconciled total of:
+resulted in approximately:
 
-```text
-$452,062,952.02
-```
+**$452,062,952.02**
 
-The reconciliation was used to validate the analytical calculation against the source data.
+This reconciliation was used to validate the analytical calculation.
 
-### Purchase Validation
+### Purchase baseline
 
-The purchase baseline contains:
+* Purchase records: **2,372,474**
+* Purchase quantity: **33,584,377**
+* Purchase dollars: **$321,900,765.53**
+* Distinct vendors: **126**
 
-* **2,372,474** purchase records
-* **33,584,377** purchase quantity
-* **$321,900,765.53** purchase dollars
-* **126** distinct vendors
-
-### Vendor Coverage
-
-The sales source contains **127 distinct VendorNo values**.
-
-The final vendor-level analytical grain is based on one record per `VendorNo`.
+The sales source contained **127 distinct VendorNo values**, while the final cleaned vendor-level analysis contained **126 vendors**.
 
 ---
 
-## Exploratory Data Analysis
+# 6. Analytical Hierarchy
 
-The EDA was performed in Python using Pandas and Jupyter Notebook.
+The analysis was performed at multiple levels.
 
-The analysis covered:
+### Level 1 — Vendor
 
-1. Vendor profitability
-2. Vendor concentration
-3. Sales vs. profit
-4. Operational efficiency
-5. Brand-level analysis
-6. Description-level analysis
+The vendor-level analysis evaluates:
+
+* Total Sales
+* Total Purchase
+* Gross Profit
+* Profit Margin
+* Stock Turnover
+* Sales-to-Purchase Ratio
+
+### Level 2 — Brand
+
+Brand-level analysis evaluates:
+
+* Total Sales
+* Gross Profit
+* Aggregate Profit Margin
+
+### Level 3 — Product Description
+
+Description-level analysis evaluates:
+
+* Total Sales
+* Gross Profit
+* Profit Margin
+
+### Level 4 — Vendor-Brand
+
+Vendor-brand analysis provides more detailed operational validation using:
+
+* Purchase Quantity
+* Sales Quantity
+* Purchase Dollars
+* Sales Dollars
+* Gross Profit
+* Profit Margin
+* Stock Turnover
+* Sales-to-Purchase Ratio
+
+This hierarchy allows the analysis to move from high-level vendor performance toward more detailed vendor-brand combinations when investigating specific patterns.
 
 ---
 
-## Vendor Profitability
+# 7. Key Performance Metrics
 
-Profitability was evaluated using:
+### Gross Profit
 
 ```text
 Gross Profit = Total Sales Dollars - Total Purchase Dollars
 ```
 
-and:
+Gross Profit represents the absolute contribution generated by sales after purchase costs.
+
+### Profit Margin
 
 ```text
 Profit Margin = Gross Profit / Total Sales Dollars
 ```
 
-The vendor-brand analysis identified:
+Profit Margin measures profitability relative to sales.
 
-* **10,692** vendor-brand combinations
-* **1,949** combinations with negative profit margin
-* Negative-margin combinations represented approximately **18.23%** of vendor-brand combinations
+### Stock Turnover
 
-The Profit Margin distribution was highly skewed.
+Stock Turnover is used to evaluate how efficiently inventory moves relative to the available inventory.
 
-The mean Profit Margin was approximately:
+### Sales-to-Purchase Ratio
 
-```text
--15.89%
-```
+This metric compares sales value with purchase value and provides an indication of how purchased value translates into sales value.
 
-while the median was approximately:
-
-```text
-30.78%
-```
-
-There were **178 records with missing Profit Margin** because their `TotalSalesDollars` was zero.
+These metrics are evaluated together rather than using a single metric to classify a vendor as "good" or "bad."
 
 ---
 
-## Inventory & Operational Efficiency
+# 8. Vendor-Brand Profitability Analysis
 
-Vendor efficiency was evaluated using:
+The vendor-brand analysis contains **10,692 vendor-brand combinations**.
 
-* Stock Turnover
-* Sales-to-Purchase Ratio
-* Profit Margin
-* Total Sales
+The analysis identified:
 
-The final `vendor_efficiency` analytical dataset contains vendor-level performance metrics.
+* **1,949 negative-margin combinations**
+* Approximately **18.23%** of vendor-brand combinations had negative margins
+* Mean Profit Margin: approximately **-15.89%**
+* Median Profit Margin: approximately **30.78%**
 
-### Vendor Efficiency Dataset
+There were also **178 combinations with missing margins** because their total sales dollars were zero.
 
-Initial dataset:
+The difference between the mean and median highlights the skewed distribution of profitability across vendor-brand combinations.
 
-```text
-128 vendor records
-```
+Extreme Profit Margin observations were retained in the main dataset rather than removed. Filtering was only applied when necessary for specific visualizations.
 
-After cleaning:
+---
 
-```text
-126 vendor records
-```
+# 9. Vendor Efficiency Analysis
 
-The median values were:
+The cleaned vendor-level dataset contains **126 vendors**.
+
+Key median benchmarks were:
 
 | Metric                  | Median |
 | ----------------------- | -----: |
@@ -283,170 +232,195 @@ The median values were:
 | Stock Turnover          | 0.9834 |
 | Sales-to-Purchase Ratio | 1.4446 |
 
+These values were used as **internal analytical benchmarks**, not industry standards.
+
+The analysis identified vendor-level records meeting the selected profitability and efficiency benchmarks.
+
+These thresholds are descriptive and should be interpreted as analytical benchmarks within this dataset rather than universal definitions of vendor performance.
+
 ---
 
-## Correlation Analysis
+# 10. Correlation Analysis
 
-The correlation analysis produced the following results:
+The analysis examined relationships between profitability and operational efficiency.
 
 | Metric Pair                               | Correlation |
 | ----------------------------------------- | ----------: |
-| Profit Margin vs Stock Turnover           |    0.090259 |
-| Profit Margin vs Sales-to-Purchase Ratio  |    0.089969 |
-| Stock Turnover vs Sales-to-Purchase Ratio |    0.999722 |
+| Profit Margin vs Stock Turnover           |      0.0903 |
+| Profit Margin vs Sales-to-Purchase Ratio  |      0.0900 |
+| Stock Turnover vs Sales-to-Purchase Ratio |      0.9997 |
 
-The extremely high correlation between Stock Turnover and Sales-to-Purchase Ratio indicates that these two operational metrics move very closely together in the analyzed vendor-level data.
+The results indicate that Profit Margin has only a weak linear relationship with the operational efficiency metrics examined.
 
-In contrast, Profit Margin showed only a weak positive relationship with both operational efficiency metrics.
+Meanwhile, Stock Turnover and Sales-to-Purchase Ratio show an extremely strong relationship in this dataset.
+
+These correlations describe relationships observed in the data and should **not be interpreted as causal relationships**.
 
 ---
 
-## Vendor Concentration
+# 11. Vendor Concentration
 
-Vendor concentration was analyzed to understand how dependent total sales are on the largest vendors.
+The analysis found a significant concentration of sales among the largest vendors.
 
-The analysis identified:
+Across the cleaned vendor-level data:
 
-* **126** unique vendors in the cleaned vendor-level dataset
-* Approximately **$451.62M** in total vendor sales
-* The **Top 10 vendors accounted for approximately 65% of sales**
+* Approximately **$451.62M** in vendor sales
+* The **Top 10 vendors contribute approximately 65% of total sales**
+* Power BI analysis shows a Top 10 Vendor Contribution of **64.99%**
 
-The Power BI dashboard calculates the Top 10 Vendor Contribution at approximately:
+This indicates that a relatively small group of vendors represents a large share of total sales value.
+
+From a business perspective, this concentration can be useful for identifying vendors that may deserve closer performance monitoring.
+
+---
+
+# 12. Brand-Level Analysis
+
+Brand-level analysis was used to identify combinations of sales scale and profitability.
+
+The analysis used dataset-based thresholds:
+
+* Low Sales: **$729.27**
+* High Sales: **$28,459.39**
+* High Profit Margin: **40.2028%**
+* Low Profit Margin: **15.35%**
+
+This resulted in:
+
+* **482 brands** with low sales and high margin
+* **206 brands** with high sales and low margin
+
+These groups help identify different business situations rather than simply ranking brands by sales.
+
+For example:
+
+* Low sales + high margin may indicate potentially profitable but small-scale opportunities.
+* High sales + low margin may indicate commercially significant products that require profitability investigation.
+
+---
+
+# 13. Product Description Analysis
+
+At the product-description level, the analysis identified:
+
+* **105** low-sales/high-margin descriptions
+* **6** high-sales/low-margin descriptions
+
+Description-level findings were treated as signals for further investigation rather than direct operational conclusions.
+
+Where necessary, these findings were validated at the vendor-brand level.
+
+---
+
+# 14. High-Sales & Operational Efficiency
+
+A combined analysis was used to identify vendor-level records that simultaneously met selected sales and operational efficiency benchmarks.
+
+The analytical thresholds included:
 
 ```text
-64.99%
+Total Sales ≥ $29,524.25
+Stock Turnover ≥ 0.983431
+Sales-to-Purchase Ratio ≥ 1.444635
 ```
 
-This indicates a high level of sales concentration among the largest vendors.
+These thresholds were derived from the dataset and represent internal analytical benchmarks rather than external industry standards.
+
+The purpose of this analysis was to identify vendor-level records that combine relatively strong commercial scale with stronger operational efficiency.
 
 ---
 
-## High-Sales & Operationally Efficient Vendors
+# 15. Power BI Dashboard
 
-A combined efficiency analysis was performed using the following thresholds:
+The final Power BI dashboard summarizes vendor performance through key financial and operational KPIs.
 
-```text
-Total Sales Dollars >= $29,524.25
-Stock Turnover >= 0.983431
-Sales-to-Purchase Ratio >= 1.444635
-```
+### Headline KPIs
 
-The analysis identified **882 vendor-level records** meeting these criteria.
+| KPI                        |        Value |
+| -------------------------- | -----------: |
+| Total Sales                | **$452.06M** |
+| Total Purchase             | **$321.90M** |
+| Gross Profit               | **$130.16M** |
+| Profit Margin              |    **7.88%** |
+| Top 10 Vendor Contribution |   **64.99%** |
 
----
-
-## Brand Analysis
-
-Brand-level profitability was calculated by aggregating:
-
-* Gross Profit
-* Total Sales Dollars
-
-before calculating Profit Margin.
-
-The methodology was corrected to ensure that Profit Margin was calculated from aggregated financial values rather than averaging individual ratios.
-
-### Brand Segmentation
-
-Thresholds used in the analysis included:
-
-```text
-Low Sales = $729.27
-High Sales = $28,459.39
-High Profit Margin = 40.2028%
-Low Profit Margin = 15.35%
-```
-
-The segmentation identified:
-
-* **482** brands with low sales and high profit margin
-* **206** brands with high sales and low profit margin
-
----
-
-## Description-Level Analysis
-
-The project also explored product description-level performance.
-
-The analysis identified:
-
-* **105** low-sales / high-margin descriptions
-* **6** high-sales / low-margin descriptions
-
-These segments provide additional areas for potential product-level investigation.
-
----
-
-## Power BI Dashboard
-
-The final Power BI dashboard presents the vendor analysis through KPI cards and analytical visualizations.
-
-### KPI Metrics
-
-The dashboard contains:
-
-* Total Sales
-* Total Purchase
-* Gross Profit
-* Profit Margin
-* Top 10 Vendor Contribution
-
-Current headline values include approximately:
-
-| KPI                        |    Value |
-| -------------------------- | -------: |
-| Total Sales                | $452.06M |
-| Total Purchase             | $321.90M |
-| Gross Profit               | $130.16M |
-| Profit Margin              |    7.88% |
-| Top 10 Vendor Contribution |   64.99% |
-
-### Dashboard Analysis
-
-The dashboard covers:
+The dashboard includes analysis such as:
 
 * Top 10 Vendors by Sales
 * Top 10 Vendors by Gross Profit
-* Stock Turnover by Vendor
-* Sales-to-Purchase Ratio by Vendor
-* Sales vs. Gross Profit relationship
-* Vendor concentration
-* Overall vendor profitability and efficiency
+* Vendor profitability
+* Profit Margin
+* Purchase performance
+* Inventory efficiency
+* Vendor contribution
+* Vendor-level performance comparisons
+
+The dashboard is designed to move from high-level KPIs toward vendor-level analysis and detailed performance investigation.
 
 ---
 
-## Key Business Findings
+# 16. Key Findings
 
 ### 1. Sales are highly concentrated
 
-The Top 10 vendors contribute approximately **65% of total sales**, indicating significant dependence on a relatively small group of vendors.
+The Top 10 vendors account for approximately **65% of total sales**, indicating a high level of vendor concentration.
 
 ### 2. Profitability varies substantially
 
-Profit Margin is highly skewed, with a significant number of vendor-brand combinations generating negative margins.
+Vendor-brand profitability varies considerably, with a meaningful number of combinations showing negative margins.
 
-### 3. Operational efficiency and profitability are not strongly correlated
+### 3. Sales volume alone does not indicate profitability
 
-Profit Margin has only weak correlations with Stock Turnover and Sales-to-Purchase Ratio.
+A vendor can generate substantial sales while having relatively weak profitability.
 
-This suggests that improving operational efficiency alone does not necessarily guarantee higher profitability.
+Therefore, sales should be evaluated together with Gross Profit and Profit Margin.
 
-### 4. Stock Turnover and Sales-to-Purchase Ratio move almost identically
+### 4. Operational efficiency is not strongly associated with profitability
 
-The correlation between the two metrics is approximately **0.9997**, indicating extremely similar movement at the vendor level.
+The correlation between Profit Margin and both Stock Turnover and Sales-to-Purchase Ratio is weak.
 
-### 5. High-sales vendors deserve additional monitoring
+This suggests that stronger inventory movement does not automatically correspond to higher profitability within this dataset.
 
-The combination of high sales and operational efficiency can help identify vendors that have both commercial importance and strong operational performance.
+### 5. Stock Turnover and Sales-to-Purchase Ratio are highly related
+
+The correlation between these two metrics is approximately **0.9997**, indicating that they move very closely together in this dataset.
+
+### 6. High-performing vendors require multiple metrics
+
+Vendor performance is better evaluated using a combination of:
+
+**Sales + Purchase Value + Gross Profit + Profit Margin + Stock Turnover + Sales-to-Purchase Ratio**
+
+rather than relying on a single KPI.
 
 ---
 
-## Project Structure
+# 17. Business Interpretation
+
+The analysis suggests that vendor performance should be viewed from multiple perspectives.
+
+A vendor with high sales may have strong commercial importance but not necessarily strong profitability.
+
+Similarly, a vendor with high profitability may have limited commercial scale.
+
+Therefore, the analysis combines:
 
 ```text
-vendor-performance-profitability-analysis/
-│
-├── README.md
+Commercial Scale
+        +
+Profitability
+        +
+Operational Efficiency
+```
+
+This approach helps identify vendors that are commercially important, profitable, operationally efficient, or require further investigation.
+
+---
+
+# 18. Project Structure
+
+```text
+Vendor-Performance-Analysis/
 │
 ├── notebooks/
 │   └── 03_vendor_analysis_eda.ipynb
@@ -465,16 +439,20 @@ vendor-performance-profitability-analysis/
 │   ├── mysql_migration/
 │   └── analysis/
 │
-└── images/
-    └── dashboard/
+├── images/
+│   └── dashboard/
+│
+└── README.md
 ```
 
-> Large raw datasets and database files are intentionally not included in the repository.
+The raw datasets are not included in the repository because of their size.
 
 ---
 
-## Author
+# 19. Conclusion
 
-**Qevin Attaqwa**
+This project demonstrates an end-to-end approach to analyzing large-scale supply-chain data, starting from raw CSV files and progressing through data preparation, database management, validation, exploratory analysis, SQL-based analytics, and Power BI visualization.
 
-Data Analyst | Business Intelligence | SQL | Power BI
+The analysis shows that vendor performance cannot be evaluated through sales volume alone. A more complete assessment requires consideration of **commercial scale, profitability, and operational efficiency together**.
+
+The project also demonstrates how detailed vendor-brand analysis can be used to investigate broader vendor-level patterns and identify areas that may require further business investigation.
